@@ -11,7 +11,6 @@ game_font = pygame.font.Font("assets/PressStart2P-Regular.ttf", 24)
 
 # Classes
 
-
 class Cloud(pygame.sprite.Sprite):
     def __init__(self, image, x_pos, y_pos):
         super().__init__()
@@ -22,7 +21,6 @@ class Cloud(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x -= 1
-
 
 class Dino(pygame.sprite.Sprite):
     def __init__(self, x_pos, y_pos):
@@ -45,15 +43,27 @@ class Dino(pygame.sprite.Sprite):
         self.current_image = 0
         self.image = self.running_sprites[self.current_image]
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
-        self.velocity = 50
-        self.gravity = 4.5
+        self.velocity = 0
+        self.gravity = 0.4
+        self.jump_strength = -15
+        self.jumping = False
         self.ducking = False
 
     def jump(self):
-        jump_sfx.play()
-        if self.rect.centery >= 360:
-            while self.rect.centery - self.velocity > 40:
-                self.rect.centery -= 1
+        if not self.jumping and self.rect.centery >= 360:  
+            jump_sfx.play()
+            self.jumping = True
+            self.velocity = self.jump_strength  
+
+    def apply_gravity(self):
+        if self.jumping:
+            self.rect.centery += self.velocity
+            self.velocity += self.gravity  
+            
+            if self.rect.centery >= 360: 
+                self.rect.centery = 360
+                self.jumping = False
+                self.velocity = 0
 
     def duck(self):
         self.ducking = True
@@ -62,10 +72,6 @@ class Dino(pygame.sprite.Sprite):
     def unduck(self):
         self.ducking = False
         self.rect.centery = 360
-
-    def apply_gravity(self):
-        if self.rect.centery <= 360:
-            self.rect.centery += self.gravity
 
     def update(self):
         self.animate()
@@ -80,6 +86,7 @@ class Dino(pygame.sprite.Sprite):
             self.image = self.ducking_sprites[int(self.current_image)]
         else:
             self.image = self.running_sprites[int(self.current_image)]
+
 
 
 class Cactus(pygame.sprite.Sprite):
@@ -128,8 +135,6 @@ class Ptero(pygame.sprite.Sprite):
         self.image = self.sprites[int(self.current_image)]
 
 # Variables
-
-
 game_speed = 5
 jump_count = 10
 player_score = 0
@@ -139,7 +144,6 @@ obstacle_spawn = False
 obstacle_cooldown = 1000
 
 # Surfaces
-
 ground = pygame.image.load("assets/ground.png")
 ground = pygame.transform.scale(ground, (1280, 20))
 ground_x = 0
@@ -148,7 +152,6 @@ cloud = pygame.image.load("assets/cloud.png")
 cloud = pygame.transform.scale(cloud, (200, 80))
 
 # Groups
-
 cloud_group = pygame.sprite.Group()
 obstacle_group = pygame.sprite.Group()
 dino_group = pygame.sprite.GroupSingle()
@@ -168,8 +171,6 @@ CLOUD_EVENT = pygame.USEREVENT
 pygame.time.set_timer(CLOUD_EVENT, 3000)
 
 # Functions
-
-
 def end_game():
     global player_score, game_speed
     game_over_text = game_font.render("Game Over!", True, "black")
@@ -181,7 +182,6 @@ def end_game():
     game_speed = 5
     cloud_group.empty()
     obstacle_group.empty()
-
 
 while True:
     keys = pygame.key.get_pressed()
