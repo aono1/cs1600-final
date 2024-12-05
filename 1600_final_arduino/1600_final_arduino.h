@@ -23,8 +23,7 @@ typedef enum {
   sDUCK_SENT = 3,
   sUNDUCK_SENT = 4,
   sPAUSE_SENT = 5,
-  sUNPAUSE_SENT = 6,
-  sGAME_ENDED = 7
+  sGAME_ENDED = 6
 } state;
 
 void updateInputs();

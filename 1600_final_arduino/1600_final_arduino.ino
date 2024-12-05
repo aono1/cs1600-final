@@ -132,7 +132,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       }
       break;
     case sDUCK_SENT:
-      if (joy_x_fsm < 400) { // 3-4
+      if (!(joy_x_fsm > 600)) { // 3-4
         Serial.println("UNDUCK");
         nextState = sUNDUCK_SENT;
       }
