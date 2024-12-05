@@ -9,32 +9,39 @@ static int SAVED_CLOCK;
 static int TIMESTEP;
 static int LAST_OBSTACLE;
 static int OBSTACLE_TIMESTEP;
+static bool RESTART_PRESSED;
 
 
 void setup() {
   pinMode(AUDIO_IN, INPUT);    
   // pinMode(PAUSE_BUT, INPUT);  
-  pinMode(CACTUS_BUT, INPUT);    
+  // pinMode(CACTUS_BUT, INPUT);    
 
   Serial.begin(9600);                      
   delay(1000);
   Serial.println("Started");
 
   pinMode(JOYS_SW_DIO, INPUT_PULLUP);
+  pinMode(JOY_SW_CAP, INPUT_PULLUP);
 
   attachInterrupt(digitalPinToInterrupt(JOYS_SW_DIO), pauseISR, LOW); 
-  attachInterrupt(digitalPinToInterrupt(CACTUS_BUT), cactusISR, RISING); 
+  attachInterrupt(digitalPinToInterrupt(JOY_SW_CAP), startISR, LOW); 
 
   TIMESTEP = 600;
   OBSTACLE_TIMESTEP = 750;
+  RESTART_PRESSED = false;
 
-  GAME_ENDED = false;
-  ADD_CACTUS = false;
+  // GAME_ENDED = false;
+  // ADD_CACTUS = false;
+  // ADD_BIRD = false;
 }
 
 void updateInputs() {
   JOY_X = analogRead(JOYS_VRX_DIO);
   JOY_Y = analogRead(JOYS_VRY_DIO);
+  CAP_JOY_X = analogRead(JOY_X_CAP);
+  CAP_JOY_Y = analogRead(JOY_Y_CAP);
+
 
 
   unsigned long start= millis();  // Start of sample window
@@ -68,27 +75,48 @@ void updateInputs() {
   // }
 }
 
-void cactusISR() {
-  if ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP) {
-    ADD_CACTUS = true;       
-  }
-}
+// void cactusISR() {
+//   if ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP) {
+//     ADD_CACTUS = true;       
+//   }
+// }
 
 void pauseISR() {
   PAUSE_PRESSED = true;               
 }
 
+void startISR() {
+  RESTART_PRESSED = true;               
+}
+
+void addObstacle() {
+  if ((CAP_JOY_X > 600) && ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP)) {
+    Serial.println("CACTUS");
+    LAST_OBSTACLE = millis();
+  } 
+  else if ((CAP_JOY_X < 400) && ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP)) {
+    Serial.println("BIRD");
+    LAST_OBSTACLE = millis();
+  } 
+}
+
 void loop() {
   static state CURRENT_STATE = sSTATIC;
   updateInputs();
+  addObstacle();
   CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, JOY_Y, AUD_VOLTS);
-
-
-  if (ADD_CACTUS) {
-    Serial.println("CACTUS");
-    ADD_CACTUS = false;
-    LAST_OBSTACLE = millis();
+  
+  if (RESTART_PRESSED) {
+    Serial.println("START");
+    RESTART_PRESSED = false;
   }
+
+
+  // if (ADD_CACTUS) {
+  //   Serial.println("CACTUS");
+  //   ADD_CACTUS = false;
+  //   LAST_OBSTACLE = millis();
+  // }
 
   // if (PAUSE_PRESSED) {
   //   Serial.println("PAUSE");
@@ -99,6 +127,7 @@ void loop() {
   //   Serial.println("JOY BUTTON");
   // }
 }
+
 
 state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, float aud_volts_fsm) {
   state nextState;

@@ -216,6 +216,19 @@ while True:
             obstacle_group.add(new_obstacle)
             obstacle_timer = pygame.time.get_ticks()
             obstacle_spawn = False
+        elif line == "BIRD":
+            new_obstacle = Ptero()
+            obstacle_group.add(new_obstacle)
+            obstacle_timer = pygame.time.get_ticks()
+            obstacle_spawn = False
+        elif line == "START" and game_over:
+            game_paused = False
+            dinosaur.jump()
+            game_over = False
+            game_speed = 5
+            player_score = 0
+            
+                
 
     # Check for pause status
     if game_paused and not(game_over):
@@ -223,12 +236,12 @@ while True:
         screen.blit(pause_text, (640, 300))
         pygame.display.flip()
         continue  # Skip the rest of the loop to pause the game
-    elif game_paused and game_over:
-        game_paused = False
-        dinosaur.jump()
-        game_over = False
-        game_speed = 5
-        player_score = 0
+    # elif game_paused and game_over:
+    #     game_paused = False
+    #     dinosaur.jump()
+    #     game_over = False
+    #     game_speed = 5
+    #     player_score = 0
 
     # Game logic and rendering
     # keys = pygame.key.get_pressed()
@@ -242,13 +255,13 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE or event.key == pygame.K_UP:
-                dinosaur.jump()
-                if game_over:
-                    game_over = False
-                    game_speed = 5
-                    player_score = 0
+        # if event.type == pygame.KEYDOWN:
+        #     if event.key == pygame.K_SPACE or event.key == pygame.K_UP:
+        #         dinosaur.jump()
+        #         if game_over:
+        #             game_over = False
+        #             game_speed = 5
+        #             player_score = 0
 
     screen.fill("white")
 
