@@ -12,7 +12,7 @@ pygame.display.set_caption("Dino Game")
 game_font = pygame.font.Font("assets/PressStart2P-Regular.ttf", 24)
 
 # Arduino setup
-arduino = serial.Serial(port='/dev/cu.usbmodemC04E30127ADC2', baudrate=9600, timeout=1)  
+arduino = serial.Serial(port='/dev/cu.usbmodemF412FA62EB642', baudrate=9600, timeout=1)  
 time.sleep(2)  # Wait for the serial connection to initialize
 
 # Classes
@@ -180,6 +180,12 @@ pygame.time.set_timer(CLOUD_EVENT, 3000)
 # Functions
 def end_game():
     global player_score, game_speed
+
+    # Tell Arduino that game has ended
+    # arduino.write(bytes("OVER",  'utf-8'))
+
+    dinosaur.unduck()
+
     game_over_text = game_font.render("Game Over!", True, "black")
     game_over_rect = game_over_text.get_rect(center=(640, 300))
     score_text = game_font.render(f"Score: {int(player_score)}", True, "black")
@@ -194,8 +200,12 @@ while True:
     # Check Arduino input
     if arduino.in_waiting > 0:
         line = arduino.readline().decode('utf-8').strip()
-        if line == "JUMP" and not game_paused:
+        if line == "JUMP":
             dinosaur.jump()
+        elif line == "DUCK":
+            dinosaur.duck()
+        elif line == "UNDUCK":
+            dinosaur.unduck()
         elif line == "PAUSE":
             game_paused = True
         elif line == "RESTART":
@@ -209,12 +219,12 @@ while True:
         continue  # Skip the rest of the loop to pause the game
 
     # Game logic and rendering
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_DOWN]:
-        dinosaur.duck()
-    else:
-        if dinosaur.ducking:
-            dinosaur.unduck()
+    # keys = pygame.key.get_pressed()
+    # if keys[pygame.K_DOWN]:
+    #     dinosaur.duck()
+    # else:
+    #     if dinosaur.ducking:
+    #         dinosaur.unduck()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
