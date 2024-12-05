@@ -2,6 +2,15 @@
 
 dinosaur game from harsitbaral
 
+# Wiring Instructions
+JOYSTICK:
+- VRX to A0
+- VRY to A1
+- SW to D2
+- GND to ground, 5V to 5V
+MIC to A5
+CACTUS BUTTON to D3
+
 # Instructions for using ButtonExpt 
 (This makes the dino jump when you hit the button. It should also work for ducking, I just didn't bother to make it because this is enough to prove it works.)
 - pip install pyserial
