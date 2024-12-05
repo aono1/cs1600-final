@@ -218,11 +218,16 @@ while True:
             obstacle_spawn = False
 
     # Check for pause status
-    if game_paused:
+    if game_paused and not(game_over):
         pause_text = game_font.render("Paused", True, "black")
         screen.blit(pause_text, (640, 300))
         pygame.display.flip()
         continue  # Skip the rest of the loop to pause the game
+    elif game_over:
+        dinosaur.jump()
+        game_over = False
+        game_speed = 5
+        player_score = 0
 
     # Game logic and rendering
     # keys = pygame.key.get_pressed()

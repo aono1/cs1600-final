@@ -25,7 +25,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(JOYS_SW_DIO), pauseISR, LOW); 
   attachInterrupt(digitalPinToInterrupt(CACTUS_BUT), cactusISR, RISING); 
 
-  TIMESTEP = 100;
+  TIMESTEP = 600;
   OBSTACLE_TIMESTEP = 750;
 
   GAME_ENDED = false;
@@ -170,78 +170,3 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
 
   return nextState;
 }
-
-
-// state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, float aud_volts_fsm) {
-//   state nextState;
-
-//   switch(curState) {
-//     case sSTATIC:
-//       if (GAME_ENDED) { // 1-7
-//         nextState = sGAME_ENDED;
-//       }
-//       else if ((aud_volts_fsm >= 1.0) && (!GAME_ENDED)) { // 1-2
-//         Serial.println("JUMP");
-//         SAVED_CLOCK = mils;
-//         nextState = sJUMP_SENT;
-//       } 
-//       else if ((joy_x_fsm > 600) && (!GAME_ENDED)) { // 1-3
-//         Serial.println("DUCK");
-//         nextState = sDUCK_SENT;
-//       }
-//       else { 
-//         nextState = sSTATIC; // 1-1
-//       }
-//       break;
-//     case sJUMP_SENT:
-//       if (GAME_ENDED) { // 2-7
-//         nextState = sGAME_ENDED;
-//       }
-//       else if (((mils - SAVED_CLOCK) >= TIMESTEP) && (!GAME_ENDED)) { // 2-1
-//         nextState = sSTATIC;
-//       } 
-//       else { // 2-2
-//         nextState = sJUMP_SENT;
-//       }
-//       break;
-//     case sDUCK_SENT:
-//       if (GAME_ENDED) { // 3-7
-//         nextState = sGAME_ENDED;
-//       }
-//       else if ((joy_x_fsm < 400) && (!GAME_ENDED)) { // 3-4
-//         Serial.println("UNDUCK");
-//         nextState = sUNDUCK_SENT;
-//       }
-//       else { // 3-3
-//         nextState = sDUCK_SENT;
-//       }
-//       break;
-//     case sUNDUCK_SENT:
-//       if (GAME_ENDED) { // 4-7
-//         nextState = sGAME_ENDED;
-//       }
-//       else if (((mils - SAVED_CLOCK) >= 100) && (!GAME_ENDED)) { // 4-1
-//         nextState = sSTATIC;
-//       }
-//       else { // 4-4
-//         nextState = sUNDUCK_SENT;
-//       }
-//       break;
-//     case sGAME_ENDED:
-//       if (!GAME_ENDED) { // 7-1
-//         nextState = sSTATIC;
-//       } 
-//       else { // 7-7
-//         nextState = sGAME_ENDED;
-//       }
-//   }
-
-//   return nextState;
-// }
-
-
-
-
-
-
-
