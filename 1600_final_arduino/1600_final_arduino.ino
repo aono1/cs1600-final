@@ -1,4 +1,5 @@
 #include "1600_final_arduino.h"
+#include <ezButton.h>
 // #include "1600_final_arduino_utils.ino"    
 
 // FSM Variables
@@ -6,24 +7,29 @@ static bool PAUSE_PRESSED;
 static bool GAME_PAUSED;
 static int SAVED_CLOCK;
 static int TIMESTEP;
+static int LAST_OBSTACLE;
+static int OBSTACLE_TIMESTEP;
 
 
 void setup() {
   pinMode(AUDIO_IN, INPUT);    
-  pinMode(PAUSE_BUT, INPUT);   
+  // pinMode(PAUSE_BUT, INPUT);  
+  pinMode(CACTUS_BUT, INPUT);    
 
   Serial.begin(9600);                      
   delay(1000);
   Serial.println("Started");
 
-  pinMode(JOYS_SW_DIO, INPUT);
-  digitalWrite(JOYS_SW_DIO, HIGH);
+  pinMode(JOYS_SW_DIO, INPUT_PULLUP);
 
-  // attachInterrupt(digitalPinToInterrupt(pauseButtonPin), pauseISR, RISING); 
+  attachInterrupt(digitalPinToInterrupt(JOYS_SW_DIO), pauseISR, LOW); 
+  attachInterrupt(digitalPinToInterrupt(CACTUS_BUT), cactusISR, RISING); 
 
   TIMESTEP = 100;
+  OBSTACLE_TIMESTEP = 750;
 
   GAME_ENDED = false;
+  ADD_CACTUS = false;
 }
 
 void updateInputs() {
@@ -62,18 +68,36 @@ void updateInputs() {
   // }
 }
 
+void cactusISR() {
+  if ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP) {
+    ADD_CACTUS = true;       
+  }
+}
 
-// void pauseISR() {
-//   // Based on all online searches, it is not good practice to print within an ISR.
-//   // I was getting the single character printing bug from Lab 3, and 
-//   // decided to just use online advice for flags instead of fixing it as Lab 3 did. 
-//   pauseButtonPressed = true;               
-// }
+void pauseISR() {
+  PAUSE_PRESSED = true;               
+}
 
 void loop() {
   static state CURRENT_STATE = sSTATIC;
   updateInputs();
   CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, JOY_Y, AUD_VOLTS);
+
+
+  if (ADD_CACTUS) {
+    Serial.println("CACTUS");
+    ADD_CACTUS = false;
+    LAST_OBSTACLE = millis();
+  }
+
+  // if (PAUSE_PRESSED) {
+  //   Serial.println("PAUSE");
+  //   PAUSE_PRESSED = false;
+  // }
+
+  // if (!digitalRead(JOYS_SW_DIO)) {
+  //   Serial.println("JOY BUTTON");
+  // }
 }
 
 state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, float aud_volts_fsm) {
@@ -81,7 +105,12 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
 
   switch(curState) {
     case sSTATIC:
-      if (aud_volts_fsm >= 1.0) { // 1-2
+      if (PAUSE_PRESSED) { // 1-5
+        Serial.println("PAUSE");
+        nextState = sPAUSE_SENT;
+        PAUSE_PRESSED = false;
+      }
+      else if (aud_volts_fsm >= 1.0) { // 1-2
         Serial.println("JUMP");
         SAVED_CLOCK = mils;
         nextState = sJUMP_SENT;
@@ -119,6 +148,17 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
         nextState = sUNDUCK_SENT;
       }
       break;
+    case sPAUSE_SENT:
+      if (PAUSE_PRESSED && ((mils - SAVED_CLOCK) >= 300)) { // 5-6
+        Serial.println("UNPAUSE");
+        nextState = sSTATIC;
+        PAUSE_PRESSED = false;
+      }
+      else { // 5-5
+        nextState = sPAUSE_SENT;
+      }
+      break;
+
     // case sGAME_ENDED:
     //   if (!GAME_ENDED) { // 7-1
     //     nextState = sSTATIC;

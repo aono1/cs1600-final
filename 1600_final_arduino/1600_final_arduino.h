@@ -3,13 +3,14 @@
 #define JOYS_VRY_DIO A1 // Joystick Y-Axis
 #define JOYS_SW_DIO 2 // Joystick Push Button
 #define AUDIO_IN 5 // Mic Input
-#define PAUSE_BUT 3 // Pause Button
+#define CACTUS_BUT 3 // Cactus Button
 
 // Variables to keep track of inputs
 float JOY_X;
 float JOY_Y;
 double AUD_VOLTS;
 bool GAME_ENDED;
+bool ADD_CACTUS;
 
 // Sampling Variables
 const int sampleWindow = 100;

@@ -198,6 +198,7 @@ def end_game():
 
 while True:
     # Check Arduino input
+    line = ""
     if arduino.in_waiting > 0:
         line = arduino.readline().decode('utf-8').strip()
         if line == "JUMP":
@@ -208,8 +209,13 @@ while True:
             dinosaur.unduck()
         elif line == "PAUSE":
             game_paused = True
-        elif line == "RESTART":
+        elif line == "UNPAUSE":
             game_paused = False
+        elif line == "CACTUS":
+            new_obstacle = Cactus(1280, 340)
+            obstacle_group.add(new_obstacle)
+            obstacle_timer = pygame.time.get_ticks()
+            obstacle_spawn = False
 
     # Check for pause status
     if game_paused:
@@ -255,18 +261,23 @@ while True:
         if pygame.time.get_ticks() - obstacle_timer >= obstacle_cooldown:
             obstacle_spawn = True
 
-        if obstacle_spawn:
-            obstacle_random = random.randint(1, 50)
-            if obstacle_random in range(1, 7):
-                new_obstacle = Cactus(1280, 340)
-                obstacle_group.add(new_obstacle)
-                obstacle_timer = pygame.time.get_ticks()
-                obstacle_spawn = False
-            elif obstacle_random in range(7, 10):
-                new_obstacle = Ptero()
-                obstacle_group.add(new_obstacle)
-                obstacle_timer = pygame.time.get_ticks()
-                obstacle_spawn = False
+        # if obstacle_spawn:
+        #     # obstacle_random = random.randint(1, 50)
+        #     # if obstacle_random in range(1, 7):
+        #     #     new_obstacle = Cactus(1280, 340)
+        #     #     obstacle_group.add(new_obstacle)
+        #     #     obstacle_timer = pygame.time.get_ticks()
+        #     #     obstacle_spawn = False
+        #     if line == "CACTUS":
+        #         new_obstacle = Cactus(1280, 340)
+        #         obstacle_group.add(new_obstacle)
+        #         obstacle_timer = pygame.time.get_ticks()
+        #         obstacle_spawn = False
+            # elif obstacle_random in range(7, 10):
+            #     new_obstacle = Ptero()
+            #     obstacle_group.add(new_obstacle)
+            #     obstacle_timer = pygame.time.get_ticks()
+            #     obstacle_spawn = False
 
         player_score += 0.1
         player_score_surface = game_font.render(
