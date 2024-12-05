@@ -223,7 +223,8 @@ while True:
         screen.blit(pause_text, (640, 300))
         pygame.display.flip()
         continue  # Skip the rest of the loop to pause the game
-    elif game_over:
+    elif game_paused and game_over:
+        game_paused = False
         dinosaur.jump()
         game_over = False
         game_speed = 5
