@@ -1,56 +1,53 @@
 #include "1600_final_arduino.h"
-#include <ezButton.h>
-// #include "1600_final_arduino_utils.ino"    
 
 // FSM Variables
 static bool PAUSE_PRESSED;
-static bool GAME_PAUSED;
-static int SAVED_CLOCK;
-static int TIMESTEP;
-static int LAST_OBSTACLE;
-static int OBSTACLE_TIMESTEP;
 static bool RESTART_PRESSED;
+static int SAVED_CLOCK;
+static int LAST_OBSTACLE;
 
+// Some file-global timestep information
+// Edit this to make the game harder, especially OBSTACLE
+// (I just made it really easy because I was struggling to play...)
+const int JUMP_TIMESTEP = 600; 
+const int OBSTACLE_TIMESTEP = 750;
 
 void setup() {
-  pinMode(AUDIO_IN, INPUT);    
-  // pinMode(PAUSE_BUT, INPUT);  
-  // pinMode(CACTUS_BUT, INPUT);    
+  // Take in audio input
+  pinMode(AUDIO_IN, INPUT);      
 
+  // Start serial
   Serial.begin(9600);                      
   delay(1000);
-  Serial.println("Started");
+  Serial.println("Started"); // For debugging, Python code ignores this
 
+  // Joystick buttons must be set with pullup
   pinMode(JOYS_SW_DIO, INPUT_PULLUP);
   pinMode(JOY_SW_CAP, INPUT_PULLUP);
 
+  // Attach interrupts for pausing and restarting
   attachInterrupt(digitalPinToInterrupt(JOYS_SW_DIO), pauseISR, LOW); 
   attachInterrupt(digitalPinToInterrupt(JOY_SW_CAP), startISR, LOW); 
 
-  TIMESTEP = 600;
-  OBSTACLE_TIMESTEP = 750;
+  // Define starting state of variables
+  // Technically not needed, but paranoia is always smart
   RESTART_PRESSED = false;
-
-  // GAME_ENDED = false;
-  // ADD_CACTUS = false;
-  // ADD_BIRD = false;
+  PAUSE_PRESSED = false;
 }
 
+// Updates variables with input from hardware
 void updateInputs() {
+  // Read joystick axes
   JOY_X = analogRead(JOYS_VRX_DIO);
   JOY_Y = analogRead(JOYS_VRY_DIO);
   CAP_JOY_X = analogRead(JOY_X_CAP);
   CAP_JOY_Y = analogRead(JOY_Y_CAP);
 
-
-
-  unsigned long start= millis();  // Start of sample window
-  unsigned int peakToPeak = 0;   // peak-to-peak level
-
+  // Process audio input
+  unsigned long start = millis();  
+  unsigned int peakToPeak = 0;
   unsigned int signalMax = 0;
   unsigned int signalMin = 1024;
-
- // collect data for 250 miliseconds
   while (millis() - start < sampleWindow) {
     aud_signal = analogRead(AUDIO_IN);
     if (aud_signal < 1024)  {
@@ -64,31 +61,21 @@ void updateInputs() {
   }
   peakToPeak = signalMax - signalMin; 
   AUD_VOLTS = (peakToPeak * 3.3) / 1024;  
-
-  // Detect gameover
-  // String commStr  = Serial.readString();
-  // if (commStr == "OVER") {
-  //   GAME_ENDED = true;
-  // }
-  // else if (commStr == "START") {
-  //   GAME_ENDED = false;
-  // }
 }
 
-// void cactusISR() {
-//   if ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP) {
-//     ADD_CACTUS = true;       
-//   }
-// }
-
+// ISRs just set flags
+// Based on online information, this seems to be best practice 
+// instead of printing in ISRs – which encounters the same priority bug from lab
 void pauseISR() {
   PAUSE_PRESSED = true;               
 }
-
 void startISR() {
   RESTART_PRESSED = true;               
 }
 
+// Code for the sabotage player to add obstacles
+// Not in the main FSM because the sabotage player should be able to add obstacles
+// independent of the state of the dinosaur
 void addObstacle() {
   if ((CAP_JOY_X > 600) && ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP)) {
     Serial.println("CACTUS");
@@ -100,32 +87,12 @@ void addObstacle() {
   } 
 }
 
+// Main loop
 void loop() {
   static state CURRENT_STATE = sSTATIC;
   updateInputs();
   addObstacle();
   CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, JOY_Y, AUD_VOLTS);
-  
-  if (RESTART_PRESSED) {
-    Serial.println("START");
-    RESTART_PRESSED = false;
-  }
-
-
-  // if (ADD_CACTUS) {
-  //   Serial.println("CACTUS");
-  //   ADD_CACTUS = false;
-  //   LAST_OBSTACLE = millis();
-  // }
-
-  // if (PAUSE_PRESSED) {
-  //   Serial.println("PAUSE");
-  //   PAUSE_PRESSED = false;
-  // }
-
-  // if (!digitalRead(JOYS_SW_DIO)) {
-  //   Serial.println("JOY BUTTON");
-  // }
 }
 
 
@@ -139,21 +106,26 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
         nextState = sPAUSE_SENT;
         PAUSE_PRESSED = false;
       }
+      else if (joy_x_fsm > 600) { // 1-3
+        Serial.println("DUCK");
+        nextState = sDUCK_SENT;
+      }
       else if (aud_volts_fsm >= 1.0) { // 1-2
         Serial.println("JUMP");
         SAVED_CLOCK = mils;
         nextState = sJUMP_SENT;
       } 
-      else if (joy_x_fsm > 600) { // 1-3
-        Serial.println("DUCK");
-        nextState = sDUCK_SENT;
+      else if (RESTART_PRESSED) { // 1-6
+        Serial.println("START");
+        RESTART_PRESSED = false;
+        nextState = sRESTARTING;
       }
       else { 
         nextState = sSTATIC; // 1-1
       }
       break;
     case sJUMP_SENT:
-      if ((mils - SAVED_CLOCK) >= TIMESTEP) { // 2-1
+      if ((mils - SAVED_CLOCK) >= JUMP_TIMESTEP) { // 2-1
         nextState = sSTATIC;
       } 
       else { // 2-2
@@ -173,6 +145,11 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       if ((mils - SAVED_CLOCK) >= 100) { // 4-1
         nextState = sSTATIC;
       }
+      else if (RESTART_PRESSED) { // 4-6
+        Serial.println("START");
+        RESTART_PRESSED = false;
+        nextState = sRESTARTING;
+      }
       else { // 4-4
         nextState = sUNDUCK_SENT;
       }
@@ -183,18 +160,18 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
         nextState = sSTATIC;
         PAUSE_PRESSED = false;
       }
+      else if (RESTART_PRESSED) { // 5-6
+        Serial.println("START");
+        RESTART_PRESSED = false;
+        nextState = sRESTARTING;
+      }
       else { // 5-5
         nextState = sPAUSE_SENT;
       }
       break;
-
-    // case sGAME_ENDED:
-    //   if (!GAME_ENDED) { // 7-1
-    //     nextState = sSTATIC;
-    //   } 
-    //   else { // 7-7
-    //     nextState = sGAME_ENDED;
-    //   }
+    case sRESTARTING:
+      nextState = sSTATIC; // 6-1
+      break;
   }
 
   return nextState;

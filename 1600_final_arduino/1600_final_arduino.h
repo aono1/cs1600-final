@@ -1,21 +1,18 @@
-// Defining all input pins
-#define JOYS_VRX_DIO A0 // Joystick X-Axis
-#define JOYS_VRY_DIO A1 // Joystick Y-Axis
-#define JOYS_SW_DIO 2 // Joystick Push Button
+// Input pins
+#define JOYS_VRX_DIO A0 // Player Joystick X-Axis
+#define JOYS_VRY_DIO A1 // Player Joystick Y-Axis
+#define JOYS_SW_DIO 2 // Player Joystick Push Button
 #define AUDIO_IN 5 // Mic Input
-// #define CACTUS_BUT 3 // Cactus Button
-#define JOY_X_CAP A2
-#define JOY_Y_CAP A3
-#define JOY_SW_CAP 3
+#define JOY_X_CAP A2 // Sabotage Joystick X-Axis
+#define JOY_Y_CAP A3 // Sabotage Joystick Y-Axis
+#define JOY_SW_CAP 3 // Sabotage Joystick Push Button
 
-// Variables to keep track of inputs
-float JOY_X;
-float JOY_Y;
-double AUD_VOLTS;
-bool GAME_ENDED;
-bool ADD_CACTUS;
-float CAP_JOY_X;
-float CAP_JOY_Y;
+// Variables to keep track of inputs updated in updateInputs()
+float JOY_X; // Player Joystick X-Axis
+float JOY_Y; // Player Joystick Y-Axis
+double AUD_VOLTS; // Mic Input
+float CAP_JOY_X; // Sabotage Joystick X-Axis
+float CAP_JOY_Y; // Sabotage Joystick Y-Axis
 
 // Sampling Variables
 const int sampleWindow = 100;
@@ -28,7 +25,8 @@ typedef enum {
   sDUCK_SENT = 3,
   sUNDUCK_SENT = 4,
   sPAUSE_SENT = 5,
-  sGAME_ENDED = 6
+  sRESTARTING = 6
 } state;
 
+// Input update function
 void updateInputs();

@@ -223,7 +223,7 @@ while True:
             obstacle_spawn = False
         elif line == "START" and game_over:
             game_paused = False
-            dinosaur.jump()
+            # dinosaur.jump()
             game_over = False
             game_speed = 5
             player_score = 0
