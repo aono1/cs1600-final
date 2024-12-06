@@ -134,6 +134,11 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       if ((mils - SAVED_CLOCK) >= JUMP_TIMESTEP) { // 2-1
         nextState = sSTATIC;
       } 
+      else if (RESTART_PRESSED) { // 2-6
+        Serial.println("START");
+        RESTART_PRESSED = false;
+        nextState = sRESTARTING;
+      }
       else { // 2-2
         nextState = sJUMP_SENT;
       }
