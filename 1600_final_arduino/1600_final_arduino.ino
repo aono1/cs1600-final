@@ -6,11 +6,17 @@ static bool RESTART_PRESSED;
 static int SAVED_CLOCK;
 static int LAST_OBSTACLE;
 
-// Some file-global timestep information
+// Some file-global information
 // Edit this to make the game harder, especially OBSTACLE
 // (I just made it really easy because I was struggling to play...)
+// Also edit for audio and joystick sensitivity
 const int JUMP_TIMESTEP = 600; 
 const int OBSTACLE_TIMESTEP = 750;
+const int PAUSE_TIMESTEP = 300;
+const int DUCK_TIMESTEP = 100;
+const float AUDIO_SENSITIVITY = 1.0;
+const int DUCK_SENSITIVITY = 600;
+
 
 void setup() {
   // Take in audio input
@@ -106,11 +112,11 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
         nextState = sPAUSE_SENT;
         PAUSE_PRESSED = false;
       }
-      else if (joy_x_fsm > 600) { // 1-3
+      else if (joy_x_fsm > DUCK_SENSITIVITY) { // 1-3
         Serial.println("DUCK");
         nextState = sDUCK_SENT;
       }
-      else if (aud_volts_fsm >= 1.0) { // 1-2
+      else if (aud_volts_fsm >= AUDIO_SENSITIVITY) { // 1-2
         Serial.println("JUMP");
         SAVED_CLOCK = mils;
         nextState = sJUMP_SENT;
@@ -133,7 +139,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       }
       break;
     case sDUCK_SENT:
-      if (!(joy_x_fsm > 600)) { // 3-4
+      if (!(joy_x_fsm > DUCK_SENSITIVITY)) { // 3-4
         Serial.println("UNDUCK");
         nextState = sUNDUCK_SENT;
       }
@@ -142,7 +148,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       }
       break;
     case sUNDUCK_SENT:
-      if ((mils - SAVED_CLOCK) >= 100) { // 4-1
+      if ((mils - SAVED_CLOCK) >= DUCK_TIMESTEP) { // 4-1
         nextState = sSTATIC;
       }
       else if (RESTART_PRESSED) { // 4-6
@@ -155,7 +161,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       }
       break;
     case sPAUSE_SENT:
-      if (PAUSE_PRESSED && ((mils - SAVED_CLOCK) >= 300)) { // 5-6
+      if (PAUSE_PRESSED && ((mils - SAVED_CLOCK) >= PAUSE_TIMESTEP)) { // 5-6
         Serial.println("UNPAUSE");
         nextState = sSTATIC;
         PAUSE_PRESSED = false;

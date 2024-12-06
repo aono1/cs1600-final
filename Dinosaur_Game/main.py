@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-import serial  # Import serial library for Arduino communication
+import serial 
 import time
 
 pygame.init()
@@ -11,12 +11,12 @@ pygame.display.set_caption("Dino Game")
 
 game_font = pygame.font.Font("assets/PressStart2P-Regular.ttf", 24)
 
-# Arduino setup
+# Serial communication with Arduino
+# See instructions in README for changing the port number if you get an error
 arduino = serial.Serial(port='/dev/cu.usbmodemF412FA62EB642', baudrate=9600, timeout=1)  
-time.sleep(2)  # Wait for the serial connection to initialize
+time.sleep(2)  
 
 # Classes
-
 class Cloud(pygame.sprite.Sprite):
     def __init__(self, image, x_pos, y_pos):
         super().__init__()
@@ -93,8 +93,6 @@ class Dino(pygame.sprite.Sprite):
         else:
             self.image = self.running_sprites[int(self.current_image)]
 
-
-
 class Cactus(pygame.sprite.Sprite):
     def __init__(self, x_pos, y_pos):
         super().__init__()
@@ -146,9 +144,6 @@ jump_count = 10
 player_score = 0
 game_over = False
 game_paused = False
-obstacle_timer = 0
-obstacle_spawn = False
-obstacle_cooldown = 1000
 
 # Surfaces
 ground = pygame.image.load("assets/ground.png")
@@ -180,12 +175,6 @@ pygame.time.set_timer(CLOUD_EVENT, 3000)
 # Functions
 def end_game():
     global player_score, game_speed
-
-    # Tell Arduino that game has ended
-    # arduino.write(bytes("OVER",  'utf-8'))
-
-    dinosaur.unduck()
-
     game_over_text = game_font.render("Game Over!", True, "black")
     game_over_rect = game_over_text.get_rect(center=(640, 300))
     score_text = game_font.render(f"Score: {int(player_score)}", True, "black")
@@ -197,7 +186,6 @@ def end_game():
     obstacle_group.empty()
 
 while True:
-    # Check Arduino input
     line = ""
     if arduino.in_waiting > 0:
         line = arduino.readline().decode('utf-8').strip()
@@ -214,54 +202,26 @@ while True:
         elif line == "CACTUS":
             new_obstacle = Cactus(1280, 340)
             obstacle_group.add(new_obstacle)
-            obstacle_timer = pygame.time.get_ticks()
-            obstacle_spawn = False
         elif line == "BIRD":
             new_obstacle = Ptero()
             obstacle_group.add(new_obstacle)
-            obstacle_timer = pygame.time.get_ticks()
-            obstacle_spawn = False
         elif line == "START" and game_over:
             game_paused = False
-            # dinosaur.jump()
             game_over = False
             game_speed = 5
             player_score = 0
-            
-                
 
-    # Check for pause status
+    # Pause (only when game is being played)
     if game_paused and not(game_over):
         pause_text = game_font.render("Paused", True, "black")
         screen.blit(pause_text, (640, 300))
         pygame.display.flip()
-        continue  # Skip the rest of the loop to pause the game
-    # elif game_paused and game_over:
-    #     game_paused = False
-    #     dinosaur.jump()
-    #     game_over = False
-    #     game_speed = 5
-    #     player_score = 0
-
-    # Game logic and rendering
-    # keys = pygame.key.get_pressed()
-    # if keys[pygame.K_DOWN]:
-    #     dinosaur.duck()
-    # else:
-    #     if dinosaur.ducking:
-    #         dinosaur.unduck()
+        continue  
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        # if event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_SPACE or event.key == pygame.K_UP:
-        #         dinosaur.jump()
-        #         if game_over:
-        #             game_over = False
-        #             game_speed = 5
-        #             player_score = 0
 
     screen.fill("white")
 
@@ -276,27 +236,6 @@ while True:
         game_speed += 0.0025
         if round(player_score, 1) % 100 == 0 and int(player_score) > 0:
             points_sfx.play()
-
-        if pygame.time.get_ticks() - obstacle_timer >= obstacle_cooldown:
-            obstacle_spawn = True
-
-        # if obstacle_spawn:
-        #     # obstacle_random = random.randint(1, 50)
-        #     # if obstacle_random in range(1, 7):
-        #     #     new_obstacle = Cactus(1280, 340)
-        #     #     obstacle_group.add(new_obstacle)
-        #     #     obstacle_timer = pygame.time.get_ticks()
-        #     #     obstacle_spawn = False
-        #     if line == "CACTUS":
-        #         new_obstacle = Cactus(1280, 340)
-        #         obstacle_group.add(new_obstacle)
-        #         obstacle_timer = pygame.time.get_ticks()
-        #         obstacle_spawn = False
-            # elif obstacle_random in range(7, 10):
-            #     new_obstacle = Ptero()
-            #     obstacle_group.add(new_obstacle)
-            #     obstacle_timer = pygame.time.get_ticks()
-            #     obstacle_spawn = False
 
         player_score += 0.1
         player_score_surface = game_font.render(
