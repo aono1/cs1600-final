@@ -109,8 +109,8 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
     case sSTATIC:
       if (PAUSE_PRESSED) { // 1-5
         Serial.println("PAUSE");
-        nextState = sPAUSE_SENT;
         PAUSE_PRESSED = false;
+        nextState = sPAUSE_SENT;
       }
       else if (joy_x_fsm > DUCK_SENSITIVITY) { // 1-3
         Serial.println("DUCK");
@@ -163,8 +163,8 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
     case sPAUSE_SENT:
       if (PAUSE_PRESSED && ((mils - SAVED_CLOCK) >= PAUSE_TIMESTEP)) { // 5-6
         Serial.println("UNPAUSE");
-        nextState = sSTATIC;
         PAUSE_PRESSED = false;
+        nextState = sSTATIC;
       }
       else if (RESTART_PRESSED) { // 5-6
         Serial.println("START");
