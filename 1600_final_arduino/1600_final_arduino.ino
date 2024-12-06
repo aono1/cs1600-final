@@ -143,6 +143,11 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
         Serial.println("UNDUCK");
         nextState = sUNDUCK_SENT;
       }
+      else if (RESTART_PRESSED) { // 3-6
+        Serial.println("START");
+        RESTART_PRESSED = false;
+        nextState = sRESTARTING;
+      }
       else { // 3-3
         nextState = sDUCK_SENT;
       }
