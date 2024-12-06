@@ -3,15 +3,19 @@
 dinosaur game from harsitbaral
 
 # Wiring Instructions
-JOYSTICK:
+PLAYER JOYSTICK:
 - VRX to A0
 - VRY to A1
 - SW to D2
-- GND to ground, 5V to 5V
 
 MIC to A5
 
 CACTUS BUTTON to D3
+
+SABOTAGE JOYSTICK:
+- VRX to A2
+- VRY to A3
+- SW to D3
 
 # Device-Specific Error Debugging Info
 - DO NOT open the Serial Monitor. If you get "resource busy" error on the port at any point, it's probably because you opened serial monitor. Arduino communicates with Python through the Serial Monitor, so if you also open in Arduino IDE, the serial monitor will be taken up and can't talk to Python.
