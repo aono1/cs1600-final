@@ -8,7 +8,9 @@ JOYSTICK:
 - VRY to A1
 - SW to D2
 - GND to ground, 5V to 5V
+
 MIC to A5
+
 CACTUS BUTTON to D3
 
 # Device-Specific Error Debugging Info
