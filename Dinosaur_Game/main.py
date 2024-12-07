@@ -110,7 +110,6 @@ class Cactus(pygame.sprite.Sprite):
         self.x_pos -= game_speed
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
 
-
 class Ptero(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -189,7 +188,10 @@ while True:
     line = ""
     if arduino.in_waiting > 0:
         line = arduino.readline().decode('utf-8').strip()
-        if line == "JUMP":
+        if line == "WATCHDOG":
+            pygame.quit() # end game when watchdog is triggered
+            sys.exit()
+        elif line == "JUMP":
             dinosaur.jump()
         elif line == "DUCK":
             dinosaur.duck()

@@ -14,7 +14,7 @@ const int JUMP_TIMESTEP = 600;
 const int OBSTACLE_TIMESTEP = 750;
 const int PAUSE_TIMESTEP = 300;
 const int DUCK_TIMESTEP = 100;
-const float AUDIO_SENSITIVITY = 1.0;
+const float AUDIO_SENSITIVITY = 1.0; // change in case of noisy environment 
 const int DUCK_SENSITIVITY = 600;
 
 
@@ -26,6 +26,8 @@ void setup() {
   Serial.begin(9600);                      
   delay(1000);
   Serial.println("Started"); // For debugging, Python code ignores this
+
+  WDT_INT = getNextCPUINT(1);
 
   // Joystick buttons must be set with pullup
   pinMode(JOYS_SW_DIO, INPUT_PULLUP);
@@ -39,6 +41,10 @@ void setup() {
   // Technically not needed, but paranoia is always smart
   RESTART_PRESSED = false;
   PAUSE_PRESSED = false;
+
+  // initiate the watchdog timer
+  initWDT();
+  petWDT();
 }
 
 // Updates variables with input from hardware
@@ -99,12 +105,11 @@ void loop() {
   updateInputs();
   addObstacle();
   CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, JOY_Y, AUD_VOLTS);
+  petWDT(); // pet watchdog here 
 }
-
 
 state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, float aud_volts_fsm) {
   state nextState;
-
   switch(curState) {
     case sSTATIC:
       if (PAUSE_PRESSED) { // 1-5
@@ -189,6 +194,5 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       nextState = sSTATIC; // 6-1
       break;
   }
-
   return nextState;
 }

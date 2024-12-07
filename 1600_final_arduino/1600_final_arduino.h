@@ -18,6 +18,9 @@ float CAP_JOY_Y; // Sabotage Joystick Y-Axis
 const int sampleWindow = 100;
 unsigned int aud_signal;
 
+// WDT variable
+unsigned int WDT_INT;
+
 // States 
 typedef enum {
   sSTATIC = 1,
@@ -30,3 +33,18 @@ typedef enum {
 
 // Input update function
 void updateInputs();
+
+// Watchdog functions
+void initWDT();
+void petWDT();
+void wdtISR();
+
+unsigned int getNextCPUINT(unsigned int start) {
+   unsigned int tryInt = start + 1;
+      while (tryInt < 32) {
+         if (NVIC_GetEnableIRQ((IRQn_Type) tryInt) == 0) {
+            return tryInt;
+         }
+      tryInt++;
+   }
+}
