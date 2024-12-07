@@ -27,8 +27,6 @@ void setup() {
   delay(1000);
   Serial.println("Started"); // For debugging, Python code ignores this
 
-  WDT_INT = getNextCPUINT(1);
-
   // Joystick buttons must be set with pullup
   pinMode(JOYS_SW_DIO, INPUT_PULLUP);
   pinMode(JOY_SW_CAP, INPUT_PULLUP);
@@ -41,6 +39,8 @@ void setup() {
   // Technically not needed, but paranoia is always smart
   RESTART_PRESSED = false;
   PAUSE_PRESSED = false;
+
+  WDT_INT = getNextCPUINT(1);
 
   // initiate the watchdog timer
   initWDT();

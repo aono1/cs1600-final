@@ -15,14 +15,12 @@ void initWDT() {
   NVIC_SetVector((IRQn_Type) WDT_INT, (uint32_t) &wdtISR); // set vector entry to our handler
   NVIC_SetPriority((IRQn_Type) WDT_INT, 13); // Priority lower than Serial (12)
   NVIC_EnableIRQ((IRQn_Type) WDT_INT);
-  Serial.println("init watchdog complete");
 }
 
 /* pet the watchdog */
 void petWDT() {
   R_WDT->WDTRR = 0;
   R_WDT->WDTRR = 0xff;
-  Serial.println("pet watchdog complete");
 }
 
 /* ISR when WDT triggers */
