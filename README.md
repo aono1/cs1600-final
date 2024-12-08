@@ -4,11 +4,11 @@ dinosaur game from harsitbaral
 
 # Wiring Instructions
 PLAYER JOYSTICK:
-- VRX to A0
+- VRX to A4
 - VRY to A1
 - SW to D2
 
-MIC to A5
+MIC to A0
 
 CACTUS BUTTON to D3
 
