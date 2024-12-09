@@ -1,10 +1,8 @@
 // Input pins
 #define JOYS_VRX_DIO A4 // Player Joystick X-Axis
-#define JOYS_VRY_DIO A1 // Player Joystick Y-Axis
 #define JOYS_SW_DIO 2 // Player Joystick Push Button
 #define AUDIO_IN A0 // Mic Input
 #define JOY_X_CAP A2 // Sabotage Joystick X-Axis
-#define JOY_Y_CAP A3 // Sabotage Joystick Y-Axis
 #define JOY_SW_CAP 3 // Sabotage Joystick Push Button
 
 // Variables to keep track of inputs updated in updateInputs()

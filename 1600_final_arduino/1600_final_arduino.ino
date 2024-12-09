@@ -4,17 +4,18 @@
 static bool PAUSE_PRESSED;
 static bool RESTART_PRESSED;
 static int SAVED_CLOCK;
+
+// FSM capstone variables
 static int LAST_OBSTACLE;
 
 // Some file-global information
-// Edit this to make the game harder, especially OBSTACLE
-// (I just made it really easy because I was struggling to play...)
+// Edit this to make the game harder, especially OBSTACLE_TIMESTEP
 // Also edit for audio and joystick sensitivity
 const int JUMP_TIMESTEP = 600; 
 const int OBSTACLE_TIMESTEP = 750;
 const int PAUSE_TIMESTEP = 300;
 const int DUCK_TIMESTEP = 100;
-const float AUDIO_SENSITIVITY = 1.0; // change in case of noisy environment 
+const float AUDIO_SENSITIVITY = 1.0; // increase in case of noisy environment 
 const int DUCK_SENSITIVITY = 600;
 
 
@@ -40,9 +41,15 @@ void setup() {
   RESTART_PRESSED = false;
   PAUSE_PRESSED = false;
 
+  // Initalize 
+  SAVED_CLOCK = 0;
+  LAST_OBSTACLE = -OBSTACLE_TIMESTEP; 
+
+
+  // get the next available cpu interrupt for WDT 
   WDT_INT = getNextCPUINT(1);
 
-  // initiate the watchdog timer
+  // initiate the WDT
   initWDT();
   petWDT();
 }
@@ -51,9 +58,7 @@ void setup() {
 void updateInputs() {
   // Read joystick axes
   JOY_X = analogRead(JOYS_VRX_DIO);
-  JOY_Y = analogRead(JOYS_VRY_DIO);
   CAP_JOY_X = analogRead(JOY_X_CAP);
-  CAP_JOY_Y = analogRead(JOY_Y_CAP);
 
   // Process audio input
   unsigned long start = millis();  
@@ -104,11 +109,11 @@ void loop() {
   static state CURRENT_STATE = sSTATIC;
   updateInputs();
   addObstacle();
-  CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, JOY_Y, AUD_VOLTS);
+  CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, AUD_VOLTS);
   petWDT(); // pet watchdog here 
 }
 
-state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, float aud_volts_fsm) {
+state updateFSM(state curState, long mils, float joy_x_fsm, float aud_volts_fsm) {
   state nextState;
   switch(curState) {
     case sSTATIC:
@@ -176,7 +181,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float joy_y_fsm, flo
       }
       break;
     case sPAUSE_SENT:
-      if (PAUSE_PRESSED && ((mils - SAVED_CLOCK) >= PAUSE_TIMESTEP)) { // 5-6
+      if (PAUSE_PRESSED && ((mils - SAVED_CLOCK) >= PAUSE_TIMESTEP)) { // 5-1
         Serial.println("UNPAUSE");
         PAUSE_PRESSED = false;
         nextState = sSTATIC;
