@@ -188,10 +188,7 @@ while True:
     line = ""
     if arduino.in_waiting > 0:
         line = arduino.readline().decode('utf-8').strip()
-        if line == "WATCHDOG":
-            pygame.quit() # end game when watchdog is triggered
-            sys.exit()
-        elif line == "JUMP":
+        if line == "JUMP":
             dinosaur.jump()
         elif line == "DUCK":
             dinosaur.duck()

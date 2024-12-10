@@ -7,10 +7,8 @@
 
 // Variables to keep track of inputs updated in updateInputs()
 float JOY_X; // Player Joystick X-Axis
-float JOY_Y; // Player Joystick Y-Axis
 double AUD_VOLTS; // Mic Input
 float CAP_JOY_X; // Sabotage Joystick X-Axis
-float CAP_JOY_Y; // Sabotage Joystick Y-Axis
 
 // Sampling Variables
 const int sampleWindow = 100;

@@ -9,7 +9,7 @@ void initWDT() {
 
   // Make the watchdog trigger an interrupt
   // and use the ICU to connect it to the CPU
-  R_WDT->WDTRCR = 0b00000000; // if bit 7 is 1 then resets the system 
+  R_WDT->WDTRCR = 0b10000000; // if bit 7 is 1 then resets the system, if 0 then runs wdtISR()
   R_ICU->IELSR[WDT_INT] = 0x025;
 
   NVIC_SetVector((IRQn_Type) WDT_INT, (uint32_t) &wdtISR); // set vector entry to our handler
