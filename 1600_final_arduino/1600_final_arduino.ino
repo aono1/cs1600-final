@@ -106,14 +106,11 @@ void addObstacle() {
 
 // Main loop
 void loop() {
-  for (int i = 0; i<100; i++){
-    static state CURRENT_STATE = sSTATIC;
-    updateInputs();
-    addObstacle();
-    CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, AUD_VOLTS);
-    petWDT(); // pet watchdog here 
-  }
-  while(1);
+  static state CURRENT_STATE = sSTATIC;
+  updateInputs();
+  addObstacle();
+  CURRENT_STATE = updateFSM(CURRENT_STATE, millis(), JOY_X, AUD_VOLTS);
+  petWDT(); // pet watchdog here 
 }
 
 state updateFSM(state curState, long mils, float joy_x_fsm, float aud_volts_fsm) {
