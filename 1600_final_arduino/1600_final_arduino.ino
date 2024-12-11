@@ -15,7 +15,7 @@ const int JUMP_TIMESTEP = 600;
 const int OBSTACLE_TIMESTEP = 750;
 const int PAUSE_TIMESTEP = 300;
 const int DUCK_TIMESTEP = 100;
-const float AUDIO_SENSITIVITY = 1.0; // increase in case of noisy environment 
+const float AUDIO_SENSITIVITY = 2.0; // increase in case of noisy environment 
 const int DUCK_SENSITIVITY = 600;
 
 
@@ -44,10 +44,6 @@ void setup() {
   // Initalize 
   SAVED_CLOCK = 0;
   LAST_OBSTACLE = -OBSTACLE_TIMESTEP; 
-
-
-  // get the next available cpu interrupt for WDT 
-  WDT_INT = getNextCPUINT(1);
 
   // initiate the WDT
   initWDT();
