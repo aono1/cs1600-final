@@ -149,7 +149,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float aud_volts_fsm)
       if ((mils - SAVED_CLOCK) >= DUCK_TIMESTEP) { // 4-1
         nextState = sSTATIC;
       }
-      else if (RESTART_PRESSED && !(mils - SAVED_CLOCK) >= DUCK_TIMESTEP){ // 4-6
+      else if (RESTART_PRESSED && !((mils - SAVED_CLOCK) >= DUCK_TIMESTEP)){ // 4-6
         Serial.println("START");
         RESTART_PRESSED = false;
         nextState = sRESTARTING;
