@@ -5,6 +5,24 @@
 #define JOY_X_CAP A2 // Sabotage Joystick X-Axis
 #define JOY_SW_CAP 3 // Sabotage Joystick Push Button
 
+// FSM Variables
+static bool PAUSE_PRESSED;
+static bool RESTART_PRESSED;
+static int SAVED_CLOCK;
+
+// FSM capstone variables
+static int LAST_OBSTACLE;
+
+// Some file-global information
+// Edit this to make the game harder, especially OBSTACLE_TIMESTEP
+// Also edit for audio and joystick sensitivity
+const int JUMP_TIMESTEP = 600; 
+const int OBSTACLE_TIMESTEP = 750;
+const int PAUSE_TIMESTEP = 300;
+const int DUCK_TIMESTEP = 100;
+const float AUDIO_SENSITIVITY = 2.0; // increase in case of noisy environment 
+const int DUCK_SENSITIVITY = 600;
+
 // Variables to keep track of inputs updated in updateInputs()
 float JOY_X; // Player Joystick X-Axis
 double AUD_VOLTS; // Mic Input

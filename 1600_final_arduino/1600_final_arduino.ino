@@ -1,24 +1,5 @@
 #include "1600_final_arduino.h"
 
-// FSM Variables
-static bool PAUSE_PRESSED;
-static bool RESTART_PRESSED;
-static int SAVED_CLOCK;
-
-// FSM capstone variables
-static int LAST_OBSTACLE;
-
-// Some file-global information
-// Edit this to make the game harder, especially OBSTACLE_TIMESTEP
-// Also edit for audio and joystick sensitivity
-const int JUMP_TIMESTEP = 600; 
-const int OBSTACLE_TIMESTEP = 750;
-const int PAUSE_TIMESTEP = 300;
-const int DUCK_TIMESTEP = 100;
-const float AUDIO_SENSITIVITY = 2.0; // increase in case of noisy environment 
-const int DUCK_SENSITIVITY = 600;
-
-
 void setup() {
   // Take in audio input
   pinMode(AUDIO_IN, INPUT);      
@@ -38,8 +19,8 @@ void setup() {
 
   // Define starting state of variables
   // Technically not needed, but paranoia is always smart
-  RESTART_PRESSED = false;
-  PAUSE_PRESSED = false;
+  // RESTART_PRESSED = false;
+  // PAUSE_PRESSED = false;
 
   // Initalize 
   SAVED_CLOCK = 0;
@@ -48,6 +29,7 @@ void setup() {
   // initiate the WDT
   initWDT();
   petWDT();
+  testAllTests(); // testing
 }
 
 // Updates variables with input from hardware
@@ -95,7 +77,7 @@ void addObstacle() {
     LAST_OBSTACLE = millis();
   } 
   else if ((CAP_JOY_X < 400) && ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP)) {
-    Serial.println("BIRD");
+    // Serial.println("BIRD"); // comment for testing
     LAST_OBSTACLE = millis();
   } 
 }
@@ -132,7 +114,7 @@ state updateFSM(state curState, long mils, float joy_x_fsm, float aud_volts_fsm)
         RESTART_PRESSED = false;
         nextState = sRESTARTING;
       }
-      else { 
+      else {
         nextState = sSTATIC; // 1-1
       }
       break;
