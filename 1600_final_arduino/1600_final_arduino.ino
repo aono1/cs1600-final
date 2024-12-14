@@ -29,7 +29,9 @@ void setup() {
   // initiate the WDT
   initWDT();
   petWDT();
-  testAllTests(); // testing
+
+  // testing
+  testAllTests(); 
 }
 
 // Updates variables with input from hardware
@@ -77,7 +79,7 @@ void addObstacle() {
     LAST_OBSTACLE = millis();
   } 
   else if ((CAP_JOY_X < 400) && ((millis() - LAST_OBSTACLE) >=  OBSTACLE_TIMESTEP)) {
-    // Serial.println("BIRD"); // comment for testing
+    Serial.println("BIRD");
     LAST_OBSTACLE = millis();
   } 
 }
